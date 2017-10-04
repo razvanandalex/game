@@ -1,0 +1,13 @@
+requirements:
+-2d palying field
+-control one object (ship) on a left right line at the base of the field
+-shoot projectiles
+-oponents move towards you from the top down, while going from left to right and right to left also
+-oponents are destroyed by your projectiles
+-color diferenciates cetain type of oponents
+
+specifications:
+-using javascript
+-the openents are an array of objects
+-the projectiles are an array of objects
+-the main ship is a controloble object
