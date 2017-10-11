@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+
+ <title>Move around</title>
+
+ <style>
+
+ #container {
+  width: 600px;
+  height: 600px;
+  position: relative;
+  background: black;
+}
+ #guy {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  background-color: red;
+}
+ 
+ </style>
+
+</head>
+
+<body>
+
+<div id="container"> <div id="guy">Razvan</div> </div>
+<script>
+
+var guy = document.getElementById("guy"); 
+var container = document.getElementById("container"); 
+var guyX = 0; 
+var guyY = 0;
+
+/*
+document.addEventListener('keydown', function move(e){ 
+	if (e.keyCode == 39) { 
+	guyX += 2; 
+	guy.style.left = guyX + "px"; 
+	} else if (e.keyCode == 37) {
+	guyX -= 2; 
+	guy.style.left = guyX + "px"; 
+		}else if (e.keyCode == 40) {
+		guyY += 2; 
+		guy.style.top = guyY + "px"; 
+		}
+			else if (e.keyCode == 38) {
+			guyY -= 2; 
+			guy.style.top = guyY + "px"; 
+		}
+
+} );
+*/
+function move(e){ 
+
+//alert(e.keyCode);
+
+	if (e.keyCode == 39) { 
+	guyX += 2; 
+	guy.style.left = guyX + "px"; 
+	} else if (e.keyCode == 37) {
+	guyX -= 2; 
+	guy.style.left = guyX + "px"; 
+		}else if (e.keyCode == 40) {
+		guyY += 2; 
+		guy.style.top = guyY + "px"; 
+		}
+			else if (e.keyCode == 38) {
+			guyY -= 2; 
+			guy.style.top = guyY + "px"; 
+		}
+
+} 
+
+
+document.onkeydown = move;
+
+</script>
+
+</body>
+
+</html>﻿
