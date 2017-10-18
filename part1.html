@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Starfield</title>
+		<title>stars</title>
 		<style>
 			body { 
 				margin: 0px;
@@ -47,19 +47,19 @@
 		var container = document.getElementById("container"); 
 		var guyX = 0; 
 		var guyY = 0;
-		var starfield = new Starfield();
-		starfield.initialise(container);
-		starfield.start();
+		var stars = new stars();
+		stars.initialise(container);
+		stars.start();
 
 		
 		
 		
 		function randomise() {
-			starfield.stop();
-			starfield.stars = Math.random()*1000 + 50;
-			starfield.minVelocity = Math.random()*30+5;
-			starfield.maxVelocity = Math.random()*50 + starfield.minVelocity;			
-			starfield.start();
+			stars.stop();
+			stars.stars = Math.random()*1000 + 50;
+			stars.minVelocity = Math.random()*30+5;
+			stars.maxVelocity = Math.random()*50 + stars.minVelocity;			
+			stars.start();
 		}
 	</script>
 	<script type="text/javascript">

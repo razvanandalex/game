@@ -1,4 +1,4 @@
-function Starfield() {
+function stars() {
 	this.fps = 30;
 	this.canvas = null;
 	this.width = 0;
@@ -10,20 +10,20 @@ function Starfield() {
 }
 
 
-Starfield.prototype.initialise = function(div) {
-	var self = this;
+stars.prototype.initialise = function(div) {
+	var keepingIn = this;
 
 	
 	this.containerDiv = div;
-	self.width = window.innerWidth;
-	self.height = window.innerHeight;
+	keepingIn.width = window.innerWidth;
+	keepingIn.height = window.innerHeight;
 
 	window.onresize = function(event) {
-		self.width = window.innerWidth;
-		self.height = window.innerHeight;
-		self.canvas.width = self.width;
-		self.canvas.height = self.height;
-		self.draw();
+		keepingIn.width = window.innerWidth;
+		keepingIn.height = window.innerHeight;
+		keepingIn.canvas.width = keepingIn.width;
+		keepingIn.canvas.height = keepingIn.height;
+		keepingIn.draw();
  	}
 
 	
@@ -34,7 +34,7 @@ Starfield.prototype.initialise = function(div) {
 	this.canvas.height = this.height;
 };
 
-Starfield.prototype.start = function() {
+stars.prototype.start = function() {
 
 	
 	var stars = [];
@@ -44,19 +44,19 @@ Starfield.prototype.start = function() {
 	}
 	this.stars = stars;
 
-	var self = this;
+	var keepingIn = this;
 	
 	this.intervalId = setInterval(function() {
-		self.update();
-		self.draw();	
+		keepingIn.update();
+		keepingIn.draw();	
 	}, 1000 / this.fps);
 };
 
-Starfield.prototype.stop = function() {
+stars.prototype.stop = function() {
 	clearInterval(this.intervalId);
 };
 
-Starfield.prototype.update = function() {
+stars.prototype.update = function() {
 	var dt = 1 / this.fps;
 
 	for(var i=0; i<this.stars.length; i++) {
@@ -70,7 +70,7 @@ Starfield.prototype.update = function() {
 	}
 };
 
-Starfield.prototype.draw = function() {
+stars.prototype.draw = function() {
 
 	
 	var ctx = this.canvas.getContext("2d");
