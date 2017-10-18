@@ -1,85 +1,105 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-
-<head>
-
-
- <title>Move around</title>
-
- <style>
-
- #container {
-  width: 600px;
-  height: 600px;
-  position: relative;
-  background: black;
+	<head>
+		<title>Starfield</title>
+		<style>
+			body { 
+				margin: 0px;
+				padding: 0px;
+				font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+				background-color: #000;
+				color: #bbbbbb;
+			}
+			a:visited, a:active, a:link {
+				text-decoration: none;
+				color: #cecece;
+			}
+			a:hover {
+				text-decoration: underline;
+				color: #dfdfdf;
+			}
+			#container {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				z-index: -1;
+			}
+			#guy {
+				width: 100px;
+				height: 100px;
+				position: absolute;
+				background-color: red;
+				z-index: 100;
 }
- #guy {
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  background-color: red;
-}
- 
- </style>
-
-</head>
-
+		</style>
+	</head>
 <body>
 
-<div id="container"> <div id="guy">Razvan</div> </div>
-<script>
+	<div id="container"></div>
 
-var guy = document.getElementById("guy"); 
-var container = document.getElementById("container"); 
-var guyX = 0; 
-var guyY = 0;
 
-/*
-document.addEventListener('keydown', function move(e){ 
-	if (e.keyCode == 39) { 
-	guyX += 2; 
-	guy.style.left = guyX + "px"; 
-	} else if (e.keyCode == 37) {
-	guyX -= 2; 
-	guy.style.left = guyX + "px"; 
-		}else if (e.keyCode == 40) {
-		guyY += 2; 
-		guy.style.top = guyY + "px"; 
+
+	<script src="stars.js"></script>
+	<script>
+		var guy = document.getElementById("guy"); 
+		var container = document.getElementById("container"); 
+		var guyX = 0; 
+		var guyY = 0;
+		var starfield = new Starfield();
+		starfield.initialise(container);
+		starfield.start();
+
+		
+		
+		
+		function randomise() {
+			starfield.stop();
+			starfield.stars = Math.random()*1000 + 50;
+			starfield.minVelocity = Math.random()*30+5;
+			starfield.maxVelocity = Math.random()*50 + starfield.minVelocity;			
+			starfield.start();
 		}
-			else if (e.keyCode == 38) {
-			guyY -= 2; 
-			guy.style.top = guyY + "px"; 
-		}
+	</script>
+	<script type="text/javascript">
 
-} );
-*/
-function move(e){ 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41728580-1']);
+  _gaq.push(['_trackPageview']);
 
-//alert(e.keyCode);
-
-	if (e.keyCode == 39) { 
-	guyX += 2; 
-	guy.style.left = guyX + "px"; 
-	} else if (e.keyCode == 37) {
-	guyX -= 2; 
-	guy.style.left = guyX + "px"; 
-		}else if (e.keyCode == 40) {
-		guyY += 2; 
-		guy.style.top = guyY + "px"; 
-		}
-			else if (e.keyCode == 38) {
-			guyY -= 2; 
-			guy.style.top = guyY + "px"; 
-		}
-
-} 
-
-
-document.onkeydown = move;
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 
 </script>
 
+<div id="container"> <div id="guy">Razvan</div> </div>
+<script>
+	var guy = document.getElementById("guy"); 
+	var container = document.getElementById("container"); 
+	var guyX = 0; 
+	var guyY = 0;
+		function move(e){ 
+			//alert(e.keyCode);
+			if (e.keyCode == 39) { 
+			guyX += 2; 
+			guy.style.left = guyX + "px"; 
+			} else if (e.keyCode == 37) {
+			guyX -= 2; 
+			guy.style.left = guyX + "px"; 
+				}else if (e.keyCode == 40) {
+				guyY += 2; 
+				guy.style.top = guyY + "px"; 
+				}
+					else if (e.keyCode == 38) {
+					guyY -= 2; 
+					guy.style.top = guyY + "px"; 
+				}
+		} 
+document.onkeydown = move;
+</script>
 </body>
-
-</html>﻿
+</html>
