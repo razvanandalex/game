@@ -5,7 +5,8 @@ this.config = {
 	enemyMaxVelocity: 10,
         gameWidth: 400,
         gameHeight: 300,
-        pointsHit: 5
+        pointsHit: 5,
+        fps: 50
     };
 
 this.lives = 3;
@@ -144,9 +145,36 @@ function WelcomeState() {
 
 }
 
+WelcomeState.prototype.keyDown = function(game, keyCode) {
+    if(keyCode == 32) {
+        game.level = 1;
+        game.score = 0;
+        game.lives = 3;
+        game.moveToState(/*initialise start gamr state*/);
+    }
+};
 function GameOverState() {
 
 }
 
+GameOverState.prototype.keyDown = function(game, keyCode) {
+    if(keyCode == 32) {
+        game.lives = 3;
+        game.score = 0;
+        game.level = 1;
+        game.moveToState(/*move to welcomeState*/);
+    }
+};
+
 function PlayState(config, level) {
+}
+
+function PlayState(config, level) {
+    this.config = config;
+    this.level = level;
+
+    this.ship = null;
+    this.invaders = [];
+    this.rockets = [];
+    this.bombs = [];
 }
