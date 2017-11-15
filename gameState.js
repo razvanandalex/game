@@ -1,12 +1,23 @@
 function gameState() {
  
 this.config = {
-        enemyMinVelocity: 10,
-	enemyMaxVelocity: 10,
+        bombRate: 0.05,
+        bombMinVelocity: 50,
+        bombMaxVelocity: 50,
+        invaderInitialVelocity: 25,
+        invaderAcceleration: 0,
+        invaderDropDistance: 20,
+        rocketVelocity: 120,
+        rocketMaxFireRate: 2,
         gameWidth: 400,
         gameHeight: 300,
-        pointsHit: 5,
-        fps: 50
+        fps: 50,
+        debugMode: false,
+        invaderRanks: 5,
+        invaderFiles: 10,
+        shipSpeed: 120,
+        levelDifficultyMultiplier: 0.2,
+        pointsPerInvader: 5
     };
 
 this.lives = 3;
@@ -145,6 +156,25 @@ function WelcomeState() {
 
 }
 
+WelcomeState.prototype.draw = function(game, dt, ctx) {
+ 
+    ctx.clearRect(0, 0, game.width, game.height);
+ 
+    ctx.font="30px Arial";
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline="center";
+    ctx.textAlign="center";
+    ctx.fillText("Space Invaders", game.width / 2, game.height/2 - 40);
+    ctx.font="16px Arial";
+ 
+    ctx.fillText("Press 'Space' to start.", game.width / 2, game.height/2);
+}; 
+
+WelcomeState.prototype.keyDown = function(game, keyCode) {
+    if(keyCode == 32)   game.moveToState(new LevelIntroState(game.level));
+ 
+};
+
 WelcomeState.prototype.keyDown = function(game, keyCode) {
     if(keyCode == 32) {
         game.level = 1;
@@ -153,6 +183,150 @@ WelcomeState.prototype.keyDown = function(game, keyCode) {
         game.moveToState(/*initialise start gamr state*/);
     }
 };
+
+
+function LevelIntroState(level) {
+    this.level = level;
+    this.countdownMessage = "3";
+} 
+
+LevelIntroState.prototype.draw = function(game, dt, ctx) {
+    ctx.clearRect(0, 0, game.width, game.height);
+ 
+    ctx.font="36px Arial";
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline="middle"; 
+    ctx.textAlign="center"; 
+    ctx.fillText("Level " + this.level, game.width / 2, game.height/2);
+    ctx.font="24px Arial";
+    ctx.fillText("Ready in " + this.countdownMessage, game.width / 2, game.height/2 + 36);
+}; 
+
+LevelIntroState.prototype.update = function(game, dt) {
+ 
+ 
+    if(this.countdown === undefined) {
+        this.countdown = 3;
+    }
+    this.countdown -= dt;
+ 
+    if(this.countdown < 2) { 
+        this.countdownMessage = "2"; 
+    }
+    if(this.countdown < 1) { 
+        this.countdownMessage = "1"; 
+    } 
+    if(this.countdown <= 0) {
+        game.moveToState(new PlayState(game.config, this.level));
+    }
+ 
+}; 
+
+
+function PlayState(config, level) {
+    this.config = config;
+    this.level = level;
+ 
+    this.invaderCurrentVelocity =  10;
+    this.invaderCurrentDropDistance =  0;
+    this.invadersAreDropping =  false;
+    this.lastRocketTime = null;
+ 
+    this.ship = null;
+    this.invaders = [];
+    this.rockets = [];
+    this.bombs = [];
+}
+
+PlayState.prototype.enter = function(game) {
+ 
+    
+    this.ship = new Ship(game.width / 2, game.gameBounds.bottom); 
+    var levelMultiplier = this.level * this.config.levelDifficultyMultiplier;
+    this.shipSpeed = this.config.shipSpeed;
+    this.invaderInitialVelocity = this.config.invaderInitialVelocity + (levelMultiplier * this.config.invaderInitialVelocity);
+    this.bombRate = this.config.bombRate + (levelMultiplier * this.config.bombRate);
+    this.bombMinVelocity = this.config.bombMinVelocity + (levelMultiplier * this.config.bombMinVelocity);
+    this.bombMaxVelocity = this.config.bombMaxVelocity + (levelMultiplier * this.config.bombMaxVelocity);
+	
+    var ranks = this.config.invaderRanks;
+    var files = this.config.invaderFiles;
+    var invaders = [];
+    for(var rank = 0; rank < ranks; rank++){
+        for(var file = 0; file < files; file++) {
+            invaders.push(new Invader(
+                (game.width / 2) + ((files/2 - file) * 200 / files),
+                (game.gameBounds.top + rank * 20),
+                rank, file, 'Invader'));
+        }
+    }
+    this.invaders = invaders;
+    this.invaderCurrentVelocity = this.invaderInitialVelocity;
+    this.invaderVelocity = {x: -this.invaderInitialVelocity, y:0};
+    this.invaderNextVelocity = null;
+};
+
+
+ PlayState.prototype.update = function(game, dt) {
+    
+    if(game.pressedKeys[37]) {
+        this.ship.x -= this.shipSpeed * dt;
+    }
+    if(game.pressedKeys[39]) {
+        this.ship.x += this.shipSpeed * dt;
+    }
+    if(game.pressedKeys[32]) {
+        this.fireRocket();
+    }
+ 
+    if(this.ship.x < game.gameBounds.left) {
+        this.ship.x = game.gameBounds.left;
+    }
+    if(this.ship.x > game.gameBounds.right) {
+        this.ship.x = game.gameBounds.right;
+    }
+
+    for(var i=0; i<this.bombs.length; i++) {
+        var bomb = this.bombs[i];
+        bomb.y += dt * bomb.velocity;
+ 
+        if(bomb.y > this.height) {
+            this.bombs.splice(i--, 1);
+        }
+    }
+ 
+    for(i=0; i<this.rockets.length; i++) {
+        var rocket = this.rockets[i];
+        rocket.y -= dt * rocket.velocity;
+
+        if(rocket.y < 0) {
+            this.rockets.splice(i--, 1);
+        }
+    }
+
+    var hitLeft = false, hitRight = false, hitBottom = false;
+    for(i=0; i<this.invaders.length; i++) {
+        var invader = this.invaders[i];
+        var newx = invader.x + this.invaderVelocity.x * dt;
+        var newy = invader.y + this.invaderVelocity.y * dt;
+        if(hitLeft === false && newx < game.gameBounds.left) {
+            hitLeft = true;
+        }
+        else if(hitRight === false && newx > game.gameBounds.right) {
+            hitRight = true;
+        }
+        else if(hitBottom === false && newy > game.gameBounds.bottom) {
+            hitBottom = true;
+        }
+ 
+        if(!hitLeft && !hitRight && !hitBottom) {
+            invader.x = newx;
+            invader.y = newy;
+        }
+    }
+};
+
+
 function GameOverState() {
 
 }
