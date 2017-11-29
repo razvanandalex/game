@@ -264,6 +264,119 @@ PlayState.prototype.enter = function(game) {
     this.invaderCurrentVelocity = this.invaderInitialVelocity;
     this.invaderVelocity = {x: -this.invaderInitialVelocity, y:0};
     this.invaderNextVelocity = null;
+
+    if(this.invadersAreDropping) {
+        this.invaderCurrentDropDistance += this.invaderVelocity.y * dt;
+        if(this.invaderCurrentDropDistance >= this.config.invaderDropDistance) {
+            this.invadersAreDropping = false;
+            this.invaderVelocity = this.invaderNextVelocity;
+            this.invaderCurrentDropDistance = 0;
+        }
+    }
+
+    if(hitLeft) {
+        this.invaderCurrentVelocity += this.config.invaderAcceleration;
+        this.invaderVelocity = {x: 0, y:this.invaderCurrentVelocity };
+        this.invadersAreDropping = true;
+        this.invaderNextVelocity = {x: this.invaderCurrentVelocity , y:0};
+    }
+
+    if(hitRight) {
+        this.invaderCurrentVelocity += this.config.invaderAcceleration;
+        this.invaderVelocity = {x: 0, y:this.invaderCurrentVelocity };
+        this.invadersAreDropping = true;
+        this.invaderNextVelocity = {x: -this.invaderCurrentVelocity , y:0};
+    }
+
+    if(hitBottom) {
+        this.lives = 0;
+    }
+
+ 
+    for(i=0; i<this.invaders.length; i++) {
+        var invader = this.invaders[i];
+        var bang = false;
+
+        for(var j=0; j<this.rockets.length; j++){
+            var rocket = this.rockets[j];
+
+            if(rocket.x >= (invader.x - invader.width/2) && rocket.x <= (invader.x + invader.width/2) &&
+                rocket.y >= (invader.y - invader.height/2) && rocket.y <= (invader.y + invader.height/2)) {
+ 
+                this.rockets.splice(j--, 1);
+                bang = true;
+                game.score += this.config.pointsPerInvader;
+                break;
+            }
+        }
+        if(bang) {
+            this.invaders.splice(i--, 1);
+            game.sounds.playSound('bang');
+        }
+    }
+
+
+    var frontRankInvaders = {};
+    for(var i=0; i<this.invaders.length; i++) {
+        var invader = this.invaders[i];
+ 
+        if(!frontRankInvaders[invader.file] || frontRankInvaders[invader.file].rank < invader.rank) {
+            frontRankInvaders[invader.file] = invader;
+        }
+    }
+
+    for(var i=0; i<this.config.invaderFiles; i++) {
+        var invader = frontRankInvaders[i];
+        if(!invader) continue;
+        var chance = this.bombRate * dt;
+        if(chance > Math.random()) {
+            this.bombs.push(new Bomb(invader.x, invader.y + invader.height / 2, 
+                this.bombMinVelocity + Math.random()*(this.bombMaxVelocity - this.bombMinVelocity)));
+        }
+    }
+
+    for(var i=0; i<this.bombs.length; i++) {
+        var bomb = this.bombs[i];
+        if(bomb.x >= (this.ship.x - this.ship.width/2) && bomb.x <= (this.ship.x + this.ship.width/2) &&
+                bomb.y >= (this.ship.y - this.ship.height/2) && bomb.y <= (this.ship.y + this.ship.height/2)) {
+            this.bombs.splice(i--, 1);
+            game.lives--;
+            game.sounds.playSound('explosion');
+        }
+                
+    }
+
+
+    for(var i=0; i<this.invaders.length; i++) {
+        var invader = this.invaders[i];
+        if((invader.x + invader.width/2) > (this.ship.x - this.ship.width/2) && 
+            (invader.x - invader.width/2) < (this.ship.x + this.ship.width/2) &&
+            (invader.y + invader.height/2) > (this.ship.y - this.ship.height/2) &&
+            (invader.y - invader.height/2) < (this.ship.y + this.ship.height/2)) {
+
+            game.lives = 0;
+            game.sounds.playSound('explosion');
+        }
+    }
+
+    
+    if(game.lives <= 0) {
+        game.moveToState(new GameOverState());
+    }
+
+
+    if(this.invaders.length === 0) {
+        game.score += this.level * 50;
+        game.level += 1;
+        game.moveToState(new LevelIntroState(game.level));
+    }
+
+
+
+
+
+
+
 };
 
 
@@ -340,15 +453,17 @@ GameOverState.prototype.keyDown = function(game, keyCode) {
     }
 };
 
-function PlayState(config, level) {
-}
+GameOverState.prototype.draw = function(game, dt, ctx) {
 
-function PlayState(config, level) {
-    this.config = config;
-    this.level = level;
+    ctx.clearRect(0, 0, game.width, game.height);
 
-    this.ship = null;
-    this.invaders = [];
-    this.rockets = [];
-    this.bombs = [];
-}
+    ctx.font="30px Arial";
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline="center"; 
+    ctx.textAlign="center"; 
+    ctx.fillText("Game Over!", game.width / 2, game.height/2 - 40); 
+    ctx.font="16px Arial";
+    ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height/2);
+    ctx.font="16px Arial";
+    ctx.fillText("Press 'Space' to play again.", game.width / 2, game.height/2 + 40);   
+};
