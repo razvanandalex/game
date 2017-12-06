@@ -24,7 +24,9 @@ this.lives = 3;
 this.width = 0;
 this.height = 0;
 this.gameBound = {left: 0, top: 0, right: 0, bottom: 0};
- 
+this.intervalId = 0;
+this.score = 0;
+this.level = 1; 
 
 this.stateStack = [];
  
@@ -108,6 +110,18 @@ Game.prototype.pushState = function(state) {
     this.stateStack.push(state);
 };
  
+Game.prototype.mute = function(mute) {
+
+    if(mute === true) {
+        this.sounds.mute = true;
+    } else if (mute === false) {
+        this.sounds.mute = false;
+    } else {
+        this.sounds.mute = this.sounds.mute ? false : true;
+    }
+};
+
+
 Game.prototype.popState = function() {
  
 
@@ -184,6 +198,9 @@ WelcomeState.prototype.keyDown = function(game, keyCode) {
     }
 };
 
+Game.prototype.stop = function Stop() {
+    clearInterval(this.intervalId);
+};
 
 function LevelIntroState(level) {
     this.level = level;
@@ -438,6 +455,92 @@ PlayState.prototype.enter = function(game) {
         }
     }
 };
+
+
+PlayState.prototype.draw = function(game, dt, ctx) {
+    ctx.clearRect(0, 0, game.width, game.height);
+    
+
+    ctx.fillStyle = '#999999';
+    ctx.fillRect(this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
+
+
+    ctx.fillStyle = '#006600';
+    for(var i=0; i<this.invaders.length; i++) {
+        var invader = this.invaders[i];
+        ctx.fillRect(invader.x - invader.width/2, invader.y - invader.height/2, invader.width, invader.height);
+    }
+
+
+    ctx.fillStyle = '#ff5555';
+    for(var i=0; i<this.bombs.length; i++) {
+        var bomb = this.bombs[i];
+        ctx.fillRect(bomb.x - 2, bomb.y - 2, 4, 4);
+    }
+
+    ctx.fillStyle = '#ff0000';
+    for(var i=0; i<this.rockets.length; i++) {
+        var rocket = this.rockets[i];
+        ctx.fillRect(rocket.x, rocket.y - 2, 1, 4);
+    }
+
+   
+    var textYpos = game.gameBounds.bottom + ((game.height - game.gameBounds.bottom) / 2) + 14/2;
+    ctx.font="14px Arial";
+    ctx.fillStyle = '#ffffff';
+    var info = "Lives: " + game.lives;
+    ctx.textAlign = "left";
+    ctx.fillText(info, game.gameBounds.left, textYpos);
+    info = "Score: " + game.score + ", Level: " + game.level;
+    ctx.textAlign = "right";
+    ctx.fillText(info, game.gameBounds.right, textYpos);
+
+    if(this.config.debugMode) {
+        ctx.strokeStyle = '#ff0000';
+        ctx.strokeRect(0,0,game.width, game.height);
+        ctx.strokeRect(game.gameBounds.left, game.gameBounds.top,
+            game.gameBounds.right - game.gameBounds.left,
+            game.gameBounds.bottom - game.gameBounds.top);
+    }
+
+};
+
+function Sounds() {
+
+    this.audioContext = null;
+
+    this.sounds = {};
+}
+
+
+Sounds.prototype.init = function() {
+
+    this.audioContext = new context();
+    this.mute = false;
+};
+
+Sounds.prototype.loadSound = function(name, url) {
+
+    
+    var self = this;
+
+    this.sounds[name] = null;
+
+    var req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.responseType = 'arraybuffer';
+    req.onload = function() {
+        self.audioContext.decodeAudioData(req.response, function(buffer) {
+            self.sounds[name] = {buffer: buffer};
+        });
+    };
+    try {
+      req.send();
+    } catch(e) {
+     
+    }
+};
+
 
 
 function GameOverState() {
