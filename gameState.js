@@ -184,10 +184,6 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
     ctx.fillText("Press 'Space' to start.", game.width / 2, game.height/2);
 }; 
 
-WelcomeState.prototype.keyDown = function(game, keyCode) {
-    if(keyCode == 32)   game.moveToState(new LevelIntroState(game.level));
- 
-};
 
 WelcomeState.prototype.keyDown = function(game, keyCode) {
     if(keyCode == 32) {
