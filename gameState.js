@@ -122,18 +122,6 @@ Game.prototype.mute = function(mute) {
 };
 
 
-Game.prototype.popState = function() {
- 
-
-    if(this.currentState()) {
-        if(this.currentState().leave) {
-            this.currentState().leave(game);
-        }
- 
-
-        this.stateStack.pop();
-    }
-}; 
 
 function GameLoop(game) {
     var currentState = game.currentState();
@@ -155,22 +143,9 @@ function GameLoop(game) {
     }
 }
 
-Game.prototype.start = function() {
- 
-    this.moveToState(new WelcomeState());
- 
-    
-    this.lives = 3;
- 
 
- 
-}; 
 
-function WelcomeState() {
-
-}
-
-WelcomeState.prototype.draw = function(game, dt, ctx) {
+function draw = function(game, dt, ctx) {
  
     ctx.clearRect(0, 0, game.width, game.height);
  
@@ -184,8 +159,7 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
     ctx.fillText("Press 'Space' to start.", game.width / 2, game.height/2);
 }; 
 
-
-WelcomeState.prototype.keyDown = function(game, keyCode) {
+function keyDown = function(game, keyCode) {
     if(keyCode == 32) {
         game.level = 1;
         game.score = 0;
@@ -501,19 +475,6 @@ PlayState.prototype.draw = function(game, dt, ctx) {
 
 };
 
-function Sounds() {
-
-    this.audioContext = null;
-
-    this.sounds = {};
-}
-
-
-Sounds.prototype.init = function() {
-
-    this.audioContext = new context();
-    this.mute = false;
-};
 
 Sounds.prototype.loadSound = function(name, url) {
 
@@ -539,10 +500,6 @@ Sounds.prototype.loadSound = function(name, url) {
 
 
 
-function GameOverState() {
-
-}
-
 GameOverState.prototype.keyDown = function(game, keyCode) {
     if(keyCode == 32) {
         game.lives = 3;
@@ -552,17 +509,3 @@ GameOverState.prototype.keyDown = function(game, keyCode) {
     }
 };
 
-GameOverState.prototype.draw = function(game, dt, ctx) {
-
-    ctx.clearRect(0, 0, game.width, game.height);
-
-    ctx.font="30px Arial";
-    ctx.fillStyle = '#ffffff';
-    ctx.textBaseline="center"; 
-    ctx.textAlign="center"; 
-    ctx.fillText("Game Over!", game.width / 2, game.height/2 - 40); 
-    ctx.font="16px Arial";
-    ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height/2);
-    ctx.font="16px Arial";
-    ctx.fillText("Press 'Space' to play again.", game.width / 2, game.height/2 + 40);   
-};
