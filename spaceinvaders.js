@@ -3,7 +3,7 @@ var alienSprite, shipSprite, citySprite;
 var aliens, direction, ship, rockets, cities;
 
 	function play(){
-		myScreen= new myScreen(900,900);
+		myScreen= new myScreen(600,900);
 		input = new takeInput();
 		
 		var image = new Image();
@@ -20,7 +20,7 @@ var aliens, direction, ship, rockets, cities;
 		initialize();
 		run();
 		});
-		image.src= "";
+		image.src= "res/invaders.png";
 	};
 	
 	function initialize(){
